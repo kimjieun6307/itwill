@@ -1,0 +1,35 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title> 간호사 페이지 </title>
+</head>
+<body>
+  <div align="center"> 
+     <h3> 담당 간호사 환자 정보 </h3>
+     <table border="1" width="600">
+        <tr> 
+           <th> 담당 간호사 ID </th> <th> 담당 의사 ID </th> 
+           <th> 환자이름 </th> <th> 환자 전화번호 </th>
+        </tr>
+
+		 {% if dataset : %}
+                {% for row in dataset %}
+                 <tr>
+                     <td> {{row[0]}}</td> <td> {{row[1]}}</td>
+                     <td> {{row[2]}}</td> <td> {{row[3]}}</td>
+                 </tr>
+                {% endfor %}
+          {% else %}
+          <tr>
+              <th colspan="4">
+                   <h3> 진료 내용이 없습니다.</h3>
+              </th>
+          </tr>
+          {% endif%}
+     </table>
+	   <p> 전체 레코드 수 : {{size}}</p>
+
+<a href= '/'> [main 화면]</a>
+</div> 
+</body>
+</html>

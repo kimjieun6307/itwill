@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AED page</title>
+</head>
+<body>
+    <div align="center">
+        <h2> 검색 결과 </h2>
+        <table border="1" width="1300">
+            <tr>
+                <th> 시군명 </th>
+                <th> 설치기관명(설치장소) </th>
+                <th> 전화번호 </th>
+                <th> 소재지지번주소 </th>
+            </tr>
+            {% if data : %}
+                {% for row in data %}
+                <tr> <!-- 레코드 수 만큼 행이 자동으로 늘어남-->
+                    <td> {{row[0]}}</td>
+                    <td> {{row[1]}}</td>
+                    <td> {{row[2]}}</td>
+                    <td> {{row[5]}}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <h3> 검색 결과 없습니다. </h3>
+            {% endif %}
+        </table>
+        <a href="/"> 처음으로 </a>
+        <br>
+        <a href="http://192.168.12.10/select?menu=3"> 뒤로가기</a>
+    </div>
+
+</body>
+</html>

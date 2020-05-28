@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>index page</title>
+</head>
+<body>
+    <div align="center">
+        <h2> 검색할 동을 입력하세요.</h2>
+        <form method="post" action="/search">
+            <table border="1" width="300">
+                <tr>
+                    <th> 동 입력 </th>
+                    <!-- dong = input()-->
+                    <th><input type="text" name = "dong" size="30"></th>
+                </tr>
+                <tr>
+                    <th colspan="2">
+                    <input type="submit" value="찾기"/>
+                    <input type="reset" value="취소">
+                    </th>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>

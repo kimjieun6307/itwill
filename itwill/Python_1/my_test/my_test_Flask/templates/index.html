@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>index page</title>
+</head>
+<body>
+    <div align="center">
+        <h1> 경기데이터드림 내맘대로 활용</h1>
+        <h2> 메뉴를 선택하세요 </h2>
+        <form method="get" action="/select">
+            <table border="1" width="500">
+                <tr>
+                    <td>
+                        <input type="radio" name="menu" value="1" checked>
+                        1. 화학물질 위해관리대상 사업장 현황<br>
+                        <input type="radio" name="menu" value="2">
+                        2. 자전거 대여소 현황<br>
+                        <input type="radio" name="menu" value="3">
+                        3. 자동제세동기(AED) 설치 현황<br>
+                        <input type="radio" name="menu" value="4">
+                        4. 경기데이터드림 사이트 들어가기<br>
+                    </td>
+                    <td align="center">
+                        <input type="submit" value="선택"/>
+                        <input type="reset" value="취소"/>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>

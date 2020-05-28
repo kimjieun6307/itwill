@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>chemistry_form page</title>
+</head>
+<body>
+    <div align="center">
+        <h2> 화학물질 위해관리대상 사업장 현황 </h2>
+        <h3> 경기도 내 찾고 싶은 주소를 입력하세요. </h3>
+        <form method="post" action="/chemistry">
+            <table border="1" width="400">
+                <tr>
+                    <th> 주소 찾기<br> (지번 주소) </th>
+                    <th><input type="text" name = "dong" size="30"></th>
+                </tr>
+                <tr>
+                    <th colspan="2">
+                    <input type="submit" value="찾기"/>
+                    <input type="reset" value="취소">
+                    </th>
+                </tr>
+            </table>
+        </form>
+        <br><br>
+        <a href="/"> 처음으로 </a>
+    </div>
+</body>
+</html>

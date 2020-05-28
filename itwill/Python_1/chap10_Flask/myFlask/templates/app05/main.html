@@ -1,0 +1,33 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>메인 화면 </title>
+      <style type="text/css">
+       a{
+          text-decoration: none; /* a 태그 기본 서식 제거 */
+          color : blue;
+          font-family : 맑은 고딕;
+       }
+       /* 앵커 태그 위 마우스 오버시 */
+       a:hover{
+           text-decoration: none;
+           color : green;
+           font-family : 맑은 고딕;
+       }
+    </style>
+</head>
+<body>
+   <div align="center">
+     <img src="{{ url_for('static', filename='main.jpg') }}" width="550">
+     <hr>
+     
+     <table width = '500'>
+        <tr>
+          <th> <a href="/docForm">의사 </a> </th>
+          <th> <a href="/nurseForm">간호사 </a> </th>
+        </tr>     
+     </table>
+   
+   </div>
+</body>
+</html>

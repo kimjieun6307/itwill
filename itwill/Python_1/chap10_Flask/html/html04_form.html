@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>form tag</title>
+</head>
+<body>
+    <form method="get" action="http://www.naver.com">
+        <!-- method : 자료 전송 방식(post, get)
+             action : 자료 전송 서버 -->
+        <table border="1">
+            <tr>
+                <th> 아이디 </th>
+                <th> <input type = "text" name = "id" size="15/"></th>
+            </tr>
+            <tr>
+                <th> 비밀번호 </th>
+                <th> <input type="password" name="pwd" size="15"/></th>
+            </tr>
+            <tr>
+                <th colspan="2">
+                    <input type="submit" value="전송"/>
+                    <!-- 지정한 서버로 자료 전송 역할 버튼 -->
+                    <input type="reset" value="취소"/>
+                </th>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>

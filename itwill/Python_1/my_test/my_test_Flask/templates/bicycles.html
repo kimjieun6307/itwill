@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>bicycles page</title>
+</head>
+<body>
+    <div align="center">
+        <h2> 검색 결과 </h2>
+        <table border="1" width="1300">
+            <tr>
+                <th> 자전거대여소명 </th>
+                <th> 소재지지번주소 </th>
+                <th> 운영시작시각 </th>
+                <th> 운영종료시각 </th>
+                <th> 휴무일 </th>
+                <th> 자전거보유대수 </th>
+                <th> 관리기관전화번호 </th>
+            </tr>
+            {% if data : %}
+                {% for row in data %}
+                <tr> <!-- 레코드 수 만큼 행이 자동으로 늘어남-->
+                    <td> {{row[0]}}</td>
+                    <td> {{row[3]}}</td>
+                    <td> {{row[6]}}</td>
+                    <td> {{row[7]}}</td>
+                    <td> {{row[8]}}</td>
+                    <td> {{row[11]}}</td>
+                    <td> {{row[16]}}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <h3> 검색 결과 없습니다. </h3>
+            {% endif %}
+        </table>
+        <a href="/"> 처음으로 </a>
+        <br>
+        <a href="http://192.168.12.10/select?menu=2"> 뒤로가기</a>
+    </div>
+</body>
+</html>

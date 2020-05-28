@@ -1,0 +1,32 @@
+digraph Tree {
+node [shape=box] ;
+0 [label="proline <= 755.0\ngini = 0.642\nsamples = 124\nvalue = [45, 53, 26]\nclass = y[1]"] ;
+1 [label="od280/od315_of_diluted_wines <= 1.985\ngini = 0.461\nsamples = 75\nvalue = [2, 50, 23]\nclass = y[1]"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="hue <= 0.97\ngini = 0.211\nsamples = 25\nvalue = [0, 3, 22]\nclass = y[2]"] ;
+1 -> 2 ;
+3 [label="gini = 0.0\nsamples = 22\nvalue = [0, 0, 22]\nclass = y[2]"] ;
+2 -> 3 ;
+4 [label="gini = 0.0\nsamples = 3\nvalue = [0, 3, 0]\nclass = y[1]"] ;
+2 -> 4 ;
+5 [label="flavanoids <= 0.745\ngini = 0.114\nsamples = 50\nvalue = [2, 47, 1]\nclass = y[1]"] ;
+1 -> 5 ;
+6 [label="gini = 0.0\nsamples = 1\nvalue = [0, 0, 1]\nclass = y[2]"] ;
+5 -> 6 ;
+7 [label="gini = 0.078\nsamples = 49\nvalue = [2, 47, 0]\nclass = y[1]"] ;
+5 -> 7 ;
+8 [label="flavanoids <= 2.165\ngini = 0.222\nsamples = 49\nvalue = [43, 3, 3]\nclass = y[0]"] ;
+0 -> 8 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+9 [label="malic_acid <= 2.1\ngini = 0.48\nsamples = 5\nvalue = [0, 2, 3]\nclass = y[2]"] ;
+8 -> 9 ;
+10 [label="gini = 0.0\nsamples = 2\nvalue = [0, 2, 0]\nclass = y[1]"] ;
+9 -> 10 ;
+11 [label="gini = 0.0\nsamples = 3\nvalue = [0, 0, 3]\nclass = y[2]"] ;
+9 -> 11 ;
+12 [label="alcalinity_of_ash <= 27.5\ngini = 0.044\nsamples = 44\nvalue = [43, 1, 0]\nclass = y[0]"] ;
+8 -> 12 ;
+13 [label="gini = 0.0\nsamples = 43\nvalue = [43, 0, 0]\nclass = y[0]"] ;
+12 -> 13 ;
+14 [label="gini = 0.0\nsamples = 1\nvalue = [0, 1, 0]\nclass = y[1]"] ;
+12 -> 14 ;
+}

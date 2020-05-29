@@ -146,47 +146,6 @@ y_test.value_counts() #11,220
 '''
 
 
-##################
-### RandomForest
-##################
-
-rf = RandomForestClassifier()
-model = rf.fit(X=x_train, y=y_train)
-
-y_pred = model.predict(x_test)
-y_true = y_test
-
-acc = accuracy_score(y_true, y_pred)
-acc # 0.9939393939393939
-
-report = classification_report(y_true, y_pred)
-print(report)
-'''
-              precision    recall  f1-score   support
-
-         0.0       1.00      0.99      0.99      5597
-         1.0       0.99      1.00      0.99      5623
-
-    accuracy                           0.99     11220
-   macro avg       0.99      0.99      0.99     11220
-weighted avg       0.99      0.99      0.99     11220
-'''
-
-
-model.feature_importances_
-# array([0.20234667, 0.13226774, 0.35807944, 0.20498742, 0.10231872])
-
-import matplotlib.pyplot as plt
-plt.barh(x_col, model.feature_importances_ )
-'''
-plant1_train_tem_coil_loc1 >>  0.35807944
-plant1_train_tem_out_loc1 >> 0.20498742
-plant1_train_tem_in_loc1 >> 0.20234667
-'''
-
-
-#######################################################
-
 plant_b_df = pd.read_csv('plant_b_df.csv')
 
 plant_b_df=plant_b_df.iloc[:, 1:8]
@@ -280,6 +239,48 @@ acc  #0.9834224598930481
 report = classification_report(y_test, y_pred)
 print(report)
 
+
+
+##################
+### RandomForest
+##################
+
+rf = RandomForestClassifier()
+model = rf.fit(X=x_train, y=y_train)
+
+y_pred = model.predict(x_test)
+y_true = y_test
+
+acc = accuracy_score(y_true, y_pred)
+acc # 0.9939393939393939
+
+report = classification_report(y_true, y_pred)
+print(report)
+'''
+              precision    recall  f1-score   support
+
+         0.0       1.00      0.99      0.99      5597
+         1.0       0.99      1.00      0.99      5623
+
+    accuracy                           0.99     11220
+   macro avg       0.99      0.99      0.99     11220
+weighted avg       0.99      0.99      0.99     11220
+'''
+
+
+model.feature_importances_
+# array([0.20234667, 0.13226774, 0.35807944, 0.20498742, 0.10231872])
+
+import matplotlib.pyplot as plt
+plt.barh(x_col, model.feature_importances_ )
+'''
+plant1_train_tem_coil_loc1 >>  0.35807944
+plant1_train_tem_out_loc1 >> 0.20498742
+plant1_train_tem_in_loc1 >> 0.20234667
+'''
+
+
+#######################################################
 
 
 

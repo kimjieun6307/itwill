@@ -216,9 +216,9 @@ y=df_sam[y_col]
 
 
 
-###############################
-###불균형 데이터 처리 SMOTE 함수
-#############################
+##################################
+### 불균형 데이터 처리 SMOTE 함수
+##################################
 # pip install -U imbalanced-learn # Anaconda Promt에서 설치
 
 from imblearn.over_sampling import SMOTE
@@ -388,4 +388,322 @@ print(report)
 weighted avg       0.99      0.98      0.98     58157
 '''
 
+############################################
+
+plant1_train = pd.read_csv('plant1_train.csv')
+
+
+plant1_train = plant1_train.drop('Unnamed: 0' , axis=1)
+cols = ['Date' , 'loc1_tem', 'loc1_hum', 'loc1_coil_temp','loc2_tem', 'loc2_hum', 'loc2_coil_temp' , 'loc3_tem', 'loc3_hum', 'loc3_coil_temp', 'out_tem', 'out_hum', 'loc1' , 'loc2' , 'loc3']
+plant1_train.columns = cols
+plant1_train_3 = plant1_train[['Date','loc3_tem', 'out_tem' , 'loc3_coil_temp', 'loc3_hum', 'out_hum', 'loc3']]
+
+a = datetime.strptime(plant1_train_3['Date'][0]  , '%Y-%m-%d %H:%M')
+
+date_trans = []
+for i in range(0,len(plant1_train_3)):
+    date_trans.append(datetime.strptime(plant1_train_3['Date'][i] , '%Y-%m-%d %H:%M'))
+
+
+plant1_train_3['date_trans'] = date_trans
+#plant1_train_first[plant1_train_first['date_trans']==c]
+plant1_train_3
+
+hour24 = []
+for i in range(0,len(plant1_train_3)):
+    tmp = datetime.strptime(plant1_train_3['Date'][i]  , '%Y-%m-%d %H:%M') + timedelta(days=1)
+    tmp1 = datetime.strptime(plant1_train_3['Date'][i]  , '%Y-%m-%d %H:%M')
+    if(len(plant1_train_3[plant1_train_3['date_trans']==tmp]) > 0 ):
+        loc_24hour = plant1_train_3[plant1_train_3['date_trans']==tmp]
+        print(plant1_train_3['Date'][i])
+        print(loc_24hour['Date'])
+        print("this", float(loc_24hour['loc3'].values))
+        print("-"*10)
+        hour24.append(float(loc_24hour['loc3'].values))
+    else:
+        hour24.append(float('NaN'))
+
+plant1_train_3['24hourloc'] = hour24
+plant1_train_3
+
+plant1_train_3 = plant1_train_3.dropna(axis=0)
+plant1_train_3[plant1_train_3['24hourloc']==1]
+
+
+plant1_train_3.info()
+'''
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 58108 entries, 0 to 58604
+Data columns (total 9 columns):
+ #   Column          Non-Null Count  Dtype         
+---  ------          --------------  -----         
+ 0   Date            58108 non-null  object        
+ 1   loc3_tem        58108 non-null  float64       
+ 2   out_tem         58108 non-null  float64       
+ 3   loc3_coil_temp  58108 non-null  float64       
+ 4   loc3_hum        58108 non-null  float64       
+ 5   out_hum         58108 non-null  float64       
+ 6   loc3            58108 non-null  float64       
+ 7   date_trans      58108 non-null  datetime64[ns]
+ 8   24hourloc       58108 non-null  float64    
+ '''
+ 
+
+plant1_train_3['24hourloc'].value_counts()
+'''
+0.0    57471
+1.0      637
+'''
+
+57471+637 #58108
+(637/58108)*100 #  1.096%
+
+
+plant1_train_3.columns = ['Date', 'loc_tem', 'out_tem', 'loc_coil_temp', 'loc_hum', 'out_hum', 'loc', 'date_trans', '24hourloc']
+
+plant1_train_3.to_csv('plant1_train_3.csv')
+
+
+plant1_train_2=pd.read_csv('plant1_train_2.csv')
+plant1_train_2.info()
+plant1_train_2 = plant1_train_2.iloc[:, 1:10]
+plant1_train_2.columns = ['Date', 'loc_tem', 'out_tem', 'loc_coil_temp', 'loc_hum', 'out_hum', 'loc', 'date_trans', '24hourloc']
+
+plant1_train_1 = pd.read_csv('plant1_train_first_24.csv')
+plant1_train_1.info()
+plant1_train_1= plant1_train_1.iloc[:, 1:10]
+plant1_train_1.columns = ['Date', 'loc_tem', 'out_tem', 'loc_coil_temp', 'loc_hum', 'out_hum', 'loc', 'date_trans', '24hourloc']
+
+df_plant1_24 = pd.concat([plant1_train_1, plant1_train_2])
+df_plant1_24 = pd.concat([df_plant1_24, plant1_train_3])
+
+df_plant1_24.info()
+'''
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 173665 entries, 0 to 58604
+Data columns (total 9 columns):
+ #   Column         Non-Null Count   Dtype  
+---  ------         --------------   -----  
+ 0   Date           173665 non-null  object 
+ 1   loc_tem        173665 non-null  float64
+ 2   out_tem        173665 non-null  float64
+ 3   loc_coil_temp  173665 non-null  float64
+ 4   loc_hum        173665 non-null  float64
+ 5   out_hum        173665 non-null  float64
+ 6   loc            173665 non-null  float64
+ 7   date_trans     173665 non-null  object 
+ 8   24hourloc      173665 non-null  float64
+'''
+
+57400+58157+58108 # 173665
+267+479+637 # 1383
+
+(1383/173665)*100 # 0.796%
+
+
+df_plant1_24.to_csv('df_plant1_24.csv')
+
+
+######## 언더 샘플링(0.5) ############
+df_no = df_plant1_24[df_plant1_24['24hourloc']==0]
+df_yes = df_plant1_24[df_plant1_24['24hourloc']==1]
+
+df_no.shape # (172282, 9)
+df_yes.shape #  (1383, 9)
+
+172282/2 # 86141
+
+
+df_no_sam = df_no.sample(86141)
+df_no_sam.shape # (86141, 9)
+
+df_sam = pd.concat([df_no_sam, df_yes])
+
+col = df_sam.columns
+x_col = col[1:6]
+y_col = col[-1]
+
+X=df_sam[x_col]
+y=df_sam[y_col]
+
+### 불균형 데이터 처리 SMOTE 함수 #####
+
+from imblearn.over_sampling import SMOTE
+
+
+## auto##
+sm = SMOTE(k_neighbors=5, random_state=123)
+X_data, y_data = sm.fit_sample(X, y)
+
+
+X_data.shape # (172282, 5)
+y_data.shape # (172282,)
+
+y_data.value_counts()
+'''
+1.0    86141
+0.0    86141
+'''
+
+x_train, x_test, y_train, y_test = train_test_split(X_data, y_data, test_size =0.3)
+
+xgb = XGBClassifier(random_state=123)
+
+model_xgb = xgb.fit(x_train, y_train)
+y_pred = model_xgb.predict(x_test)
+
+acc = accuracy_score(y_test, y_pred)
+acc 
+
+report = classification_report(y_test, y_pred)
+print(report)
+
+
+# plant1_train_3
+plant1_train_3.columns
+
+X3=plant1_train_3[x_col]
+y3=plant1_train_3[y_col]
+
+y3_pred = model_xgb.predict(X3)
+report3 = classification_report(y3, y3_pred)
+print(report3)
+'''
+              precision    recall  f1-score   support
+
+         0.0       1.00      0.96      0.98     57471
+         1.0       0.23      0.98      0.37       637
+
+    accuracy                           0.96     58108
+   macro avg       0.62      0.97      0.68     58108
+weighted avg       0.99      0.96      0.97     58108
+'''
+
+#######################
+
+X=df_plant1_24[x_col]
+y=df_plant1_24[y_col]
+
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size =0.3)
+
+
+xgb2 = XGBClassifier(random_state=45)
+
+model_xgb2 = xgb2.fit(x_train, y_train)
+y_pred = model_xgb2.predict(x_test)
+
+acc = accuracy_score(y_test, y_pred)
+acc 
+
+report = classification_report(y_test, y_pred)
+print(report)
+'''
+              precision    recall  f1-score   support
+
+         0.0       1.00      1.00      1.00     51721
+         1.0       0.87      0.50      0.63       379
+
+    accuracy                           1.00     52100
+   macro avg       0.93      0.75      0.82     52100
+weighted avg       1.00      1.00      1.00     52100
+'''
+
+
+y3_pred = model_xgb2.predict(X3)
+report3 = classification_report(y3, y3_pred)
+print(report3)
+'''
+              precision    recall  f1-score   support
+
+         0.0       1.00      1.00      1.00     57471
+         1.0       0.96      0.64      0.76       637
+
+    accuracy                           1.00     58108
+   macro avg       0.98      0.82      0.88     58108
+weighted avg       1.00      1.00      1.00     58108
+'''
+#####################
+# 중복된 행 제거
+df_p1=df_plant1_24.drop_duplicates()
+df_p1.info()
+# Int64Index: 173659 entries, 0 to 58604
+
+df_plant1_24.info()
+#Int64Index: 173665 entries, 0 to 58604
+
+173665-173659 # 6
+
+df_p1['24hourloc'].value_counts()
+'''
+0.0    172276
+1.0      1383
+'''
+df_x = df_p1[['loc_coil_temp', 'loc_hum']]
+df_y = df_p1[['24hourloc']]
+
+
+x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size =0.3)
+
+
+xgb3 = XGBClassifier(random_state=123)
+
+model_xgb3 = xgb3.fit(x_train, y_train)
+y_pred = model_xgb3.predict(x_test)
+
+report = classification_report(y_test, y_pred)
+print(report)
+'''
+              precision    recall  f1-score   support
+
+         0.0       0.99      1.00      1.00     51679
+         1.0       0.65      0.06      0.11       419
+
+    accuracy                           0.99     52098
+   macro avg       0.82      0.53      0.55     52098
+weighted avg       0.99      0.99      0.99     52098
+'''
+ 
+########
+sm = SMOTE(k_neighbors=5, random_state=123)
+X_data, y_data = sm.fit_sample(df_x, df_y)
+
+x_train, x_test, y_train, y_test = train_test_split(X_data, y_data, test_size =0.3)
+
+
+xgb3 = XGBClassifier(random_state=123)
+
+model_xgb3 = xgb3.fit(x_train, y_train)
+y_pred = model_xgb3.predict(x_test)
+
+report = classification_report(y_test, y_pred)
+print(report)
+'''
+              precision    recall  f1-score   support
+
+         0.0       0.95      0.90      0.93     51773
+         1.0       0.90      0.96      0.93     51593
+
+    accuracy                           0.93    103366
+   macro avg       0.93      0.93      0.93    103366
+weighted avg       0.93      0.93      0.93    103366
+'''
+
+# plant1_train_3
+
+X3=plant1_train_3[['loc_coil_temp', 'loc_hum']]
+y3=plant1_train_3['24hourloc']
+
+y3_pred = model_xgb3.predict(X3)
+report3 = classification_report(y3, y3_pred)
+print(report3)
+'''
+              precision    recall  f1-score   support
+
+         0.0       1.00      0.88      0.94     57471
+         1.0       0.07      0.83      0.13       637
+
+    accuracy                           0.88     58108
+   macro avg       0.54      0.86      0.54     58108
+weighted avg       0.99      0.88      0.93     58108
+'''
 

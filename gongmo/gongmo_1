@@ -1,0 +1,423 @@
+setwd("C:/ITWILL/4_Python-II/workspace/gongmo/data")
+#df_plant1_24
+df <- read.csv(file.choose())
+
+str(df)
+
+dim(df) #173665  10
+
+head(df)
+
+table(df$X24hourloc)
+
+summary(df)
+boxplot(df$loc_tem)
+boxplot(df$out_tem)
+boxplot(df$loc_coil_temp)
+boxplot(df$loc_hum)
+
+model <- lm(loc_hum ~ loc_coil_temp, data = df)
+plot(model)
+
+install.packages("caret", dependencies=TRUE)
+library(caret)
+featurePlot(df[, 3:7], df$X24hourloc)
+
+###########################################################
+#df_plant1_24
+########################################################
+df <- read.csv(file.choose())
+head(df)
+
+df<-df[,3:10]
+dim(df) # 173665      8
+
+str(df)
+
+df_x <- df[, 1:5]
+str(df_x)
+
+df_y <- df['X24hourloc']
+str(df_y)
+
+### 주성분 분석####
+pr<-prcomp(df_x)
+summary(pr)
+# Importance of components:
+#                           PC1     PC2     PC3     PC4     PC5
+# Standard deviation     22.0865 16.2408 5.91516 1.21039 0.56533
+# Proportion of Variance  0.6188  0.3346 0.04438 0.00186 0.00041
+# Cumulative Proportion   0.6188  0.9534 0.99774 0.99959 1.00000
+
+print(pr)
+# Standard deviations (1, .., p=5):
+#   [1] 22.0864505 16.2407912  5.9151553  1.2103903  0.5653336
+# 
+# Rotation (n x k) = (5 x 5):
+#   PC1        PC2        PC3        PC4        PC5
+# loc_tem       0.2908761  0.4758637  0.1667701 -0.2844316 -0.7617291
+# out_tem       0.2915518  0.5325358 -0.1768469 -0.4997680  0.5919124
+# loc_coil_temp 0.3042512  0.4607545  0.2453475  0.7791805  0.1667901
+# loc_hum       0.5569921 -0.2132480 -0.7656429  0.1832065 -0.1565614
+# out_hum       0.6538958 -0.4818609  0.5426864 -0.1692450  0.1306830
+
+plot(pr, type="l", sub = "Scree Plot")
+
+
+
+
+
+head(df_x)
+
+table(complete.cases(df_x))
+
+df<-data.frame(df_x, df_y)
+str(df)
+table(df$X24hourloc)
+
+library(caret)
+nearZeroVar(df, saveMetrics = T)
+
+library(plyr)
+ddply(df, ~X24hourloc, mu=mean(loc_coil_temp))
+
+tapply(df$loc_tem, df$X24hourloc, mean)
+tapply(df$out_tem, df$X24hourloc, mean)
+tapply(df$loc_coil_temp, df$X24hourloc, mean)
+
+str(df)
+bartlett.test(loc_tem~X24hourloc, df)
+#Bartlett's K-squared = 401.19, df = 1, p-value < 2.2e-16
+# p < 0.05 : 동질적이지 않다.
+
+bartlett.test(out_tem~X24hourloc, df)
+# Bartlett's K-squared = 280.12, df = 1, p-value < 2.2e-16
+
+bartlett.test(loc_coil_temp~X24hourloc, df)
+# Bartlett's K-squared = 542.76, df = 1, p-value < 2.2e-16
+
+bartlett.test(loc_hum~X24hourloc, df)
+# Bartlett's K-squared = 210.46, df = 1, p-value < 2.2e-16
+
+bartlett.test(out_hum~X24hourloc, df)
+# Bartlett's K-squared = 91.927, df = 1, p-value < 2.2e-16
+
+# 결로 현상 별로 분리
+yes <- subset(df, X24hourloc==1)
+no <- subset(df, X24hourloc==0)
+
+yes_loc_tem<-yes$loc_tem
+no_loc_tem<-no$loc_tem
+
+length(yes_loc_tem) # 1383
+length(no_loc_tem) # 172282
+mean(yes_loc_tem, na.rm = T) # 10.4543
+mean(no_loc_tem, na.rm = T) # 16.46241
+
+# 두집단의 분포모양 일치 여부 검정
+var.test(yes_loc_tem, no_loc_tem)
+# F = 0.41696, num df = 1382, denom df = 172281, p-value < 2.2e-16
+# p-value < 2.2e-16 : < 0.05 귀무가설 기각 : 두 집단 분포 모양 차이가 있다. 
+
+wilcox.test(yes_loc_tem, no_loc_tem)
+# W = 79707283, p-value < 2.2e-16
+# 두 집단 평균 차이가 있다
+
+
+yes_out_tem<-yes$out_tem
+no_out_tem<-no$out_tem
+
+length(yes_out_tem) # 1383
+length(no_out_tem) # 172282
+mean(yes_out_tem, na.rm = T) # 9.640947
+mean(no_out_tem, na.rm = T) # 13.48431
+
+var.test(yes_out_tem, no_out_tem)
+wilcox.test(yes_out_tem, no_out_tem)
+
+
+yes_coil_temp<-yes$loc_coil_temp
+no_coil_temp<-no$loc_coil_temp
+
+length(yes_coil_temp) # 1383
+length(no_coil_temp) # 172282
+mean(yes_coil_temp, na.rm = T) # 7.901265
+mean(no_coil_temp, na.rm = T) # 15.65963
+
+var.test(yes_coil_temp, no_coil_temp)
+wilcox.test(yes_coil_temp, no_coil_temp)
+
+
+yes_loc_hum<-yes$loc_hum
+no_loc_hum<-no$loc_hum
+
+length(yes_loc_hum) # 1383
+length(no_loc_hum) # 172282
+mean(yes_loc_hum, na.rm = T) # 59.46751
+mean(no_loc_hum, na.rm = T) # 53.31473
+
+var.test(yes_loc_hum, no_loc_hum)
+wilcox.test(yes_loc_hum, no_loc_hum)
+
+yes_out_hum<-yes$out_hum
+no_out_hum<-no$out_hum
+
+length(yes_out_hum) # 1383
+length(no_out_hum) # 172282
+mean(yes_out_hum, na.rm = T) # 59.84226
+mean(no_out_hum, na.rm = T) # 60.44186
+
+var.test(yes_out_hum, no_out_hum)
+# F = 0.67728, num df = 1382, denom df = 172281, p-value < 2.2e-16
+wilcox.test(yes_out_hum, no_out_hum)
+# W = 116115361, p-value = 0.1041
+# p >0.05 : 두 집단 평균 차이가 없다.
+
+str(df)
+cor(df[,1:5], method = "spearman")
+#                 loc_tem   out_tem loc_coil_temp   loc_hum   out_hum
+# loc_tem       1.0000000 0.9766385     0.9879811 0.3598809 0.2137162
+# out_tem       0.9766385 1.0000000     0.9547315 0.3759954 0.1301553
+# loc_coil_temp 0.9879811 0.9547315     1.0000000 0.3743960 0.2548275
+# loc_hum       0.3598809 0.3759954     0.3743960 1.0000000 0.8350162
+# out_hum       0.2137162 0.1301553     0.2548275 0.8350162 1.0000000
+
+
+
+
+#################################################
+########정규화######
+####################################################
+normalize <- function(x){
+  return ((x - min(x)) / (max(x) - min(x)))
+}
+ 
+str(df_x)
+df_x_nor <- as.data.frame(lapply(df_x, normalize))
+
+summary(df_x_nor)
+
+df_nor <-data.frame(df_x_nor, df_y)
+str(df_nor)
+  
+  
+### 주성분 분석####
+pr2<-prcomp(df_x_nor)
+summary(pr2)
+# Importance of components:
+#   PC1    PC2     PC3     PC4    PC5
+# Standard deviation     0.3915 0.2161 0.07580 0.02504 0.0111
+# Proportion of Variance 0.7423 0.2263 0.02782 0.00304 0.0006
+# Cumulative Proportion  0.7423 0.9685 0.99637 0.99940 1.0000
+
+print(pr2)
+# Standard deviations (1, .., p=5):
+#   [1] 0.39149731 0.21614488 0.07579626 0.02503719 0.01109659
+# 
+# Rotation (n x k) = (5 x 5):
+#                     PC1        PC2        PC3        PC4        PC5
+# loc_tem       0.5546438  0.1371859 -0.1307974  0.4586002 -0.6679282
+# out_tem       0.5147729  0.1721693  0.4204087  0.3631804  0.6298596
+# loc_coil_temp 0.6058236  0.1090317 -0.3286725 -0.7088184  0.1031536
+# loc_hum       0.1952892 -0.6014325  0.6670033 -0.2758304 -0.2813630
+# out_hum       0.1490603 -0.7602162 -0.5032191  0.2815669  0.2595052
+
+
+bartlett.test(loc_tem~X24hourloc, df_nor)
+#Bartlett's K-squared = 401.19, df = 1, p-value < 2.2e-16
+# p < 0.05 : 동질적이지 않다.
+
+bartlett.test(out_tem~X24hourloc, df_nor)
+# Bartlett's K-squared = 280.12, df = 1, p-value < 2.2e-16
+
+bartlett.test(loc_coil_temp~X24hourloc, df_nor)
+# Bartlett's K-squared = 542.76, df = 1, p-value < 2.2e-16
+
+bartlett.test(loc_hum~X24hourloc, df_nor)
+# Bartlett's K-squared = 210.46, df = 1, p-value < 2.2e-16
+
+bartlett.test(out_hum~X24hourloc, df_nor)
+# Bartlett's K-squared = 91.927, df = 1, p-value < 2.2e-16
+
+######################################
+# 결로 현상 별로 분리
+yes <- subset(df_nor, X24hourloc==1)
+no <- subset(df_nor, X24hourloc==0)
+
+yes_loc_tem<-yes$loc_tem
+no_loc_tem<-no$loc_tem
+
+length(yes_loc_tem) # 1383
+length(no_loc_tem) # 172282
+mean(yes_loc_tem, na.rm = T) # 0.4213063
+mean(no_loc_tem, na.rm = T) # 0.5518888
+
+# 두집단의 분포모양 일치 여부 검정
+var.test(yes_loc_tem, no_loc_tem)
+# F = 0.41696, num df = 1382, denom df = 172281, p-value < 2.2e-16
+# p-value < 2.2e-16 : < 0.05 귀무가설 기각 : 두 집단 분포 모양 차이가 있다. 
+
+wilcox.test(yes_loc_tem, no_loc_tem)
+# W = 79707283, p-value < 2.2e-16
+# 두 집단 평균 차이가 있다
+
+
+yes_out_tem<-yes$out_tem
+no_out_tem<-no$out_tem
+
+length(yes_out_tem) # 1383
+length(no_out_tem) # 172282
+mean(yes_out_tem, na.rm = T) #0.4464399
+mean(no_out_tem, na.rm = T) # 0.4464399
+
+var.test(yes_out_tem, no_out_tem)
+wilcox.test(yes_out_tem, no_out_tem)
+
+
+yes_coil_temp<-yes$loc_coil_temp
+no_coil_temp<-no$loc_coil_temp
+
+length(yes_coil_temp) # 1383
+length(no_coil_temp) # 172282
+mean(yes_coil_temp, na.rm = T) # 7.9012650.3652288
+mean(no_coil_temp, na.rm = T) # 0.5479075
+
+var.test(yes_coil_temp, no_coil_temp)
+wilcox.test(yes_coil_temp, no_coil_temp)
+
+
+yes_loc_hum<-yes$loc_hum
+no_loc_hum<-no$loc_hum
+
+length(yes_loc_hum) # 1383
+length(no_loc_hum) # 172282
+mean(yes_loc_hum, na.rm = T) # 0.5479075
+mean(no_loc_hum, na.rm = T) # 0.5321129
+
+var.test(yes_loc_hum, no_loc_hum)
+wilcox.test(yes_loc_hum, no_loc_hum)
+
+yes_out_hum<-yes$out_hum
+no_out_hum<-no$out_hum
+
+length(yes_out_hum) # 1383
+length(no_out_hum) # 172282
+mean(yes_out_hum, na.rm = T) # 0.5853588
+mean(no_out_hum, na.rm = T) # 0.5917586
+
+var.test(yes_out_hum, no_out_hum)
+# F = 0.67728, num df = 1382, denom df = 172281, p-value < 2.2e-16
+wilcox.test(yes_out_hum, no_out_hum)
+# W = 116115361, p-value = 0.1041
+# p >0.05 : 두 집단 평균 차이가 없다.
+
+
+
+cor(df_nor[,1:5], method = "spearman")
+#                 loc_tem   out_tem loc_coil_temp   loc_hum   out_hum
+# loc_tem       1.0000000 0.9766385     0.9879811 0.3598809 0.2137162
+# out_tem       0.9766385 1.0000000     0.9547315 0.3759954 0.1301553
+# loc_coil_temp 0.9879811 0.9547315     1.0000000 0.3743960 0.2548275
+# loc_hum       0.3598809 0.3759954     0.3743960 1.0000000 0.8350162
+# out_hum       0.2137162 0.1301553     0.2548275 0.8350162 1.0000000
+
+cov(df_nor[,1:5])
+#                   loc_tem     out_tem loc_coil_temp    loc_hum     out_hum
+# loc_tem       0.048314760 0.044601162    0.05223479 0.01218957 0.008237082
+# out_tem       0.044601162 0.043147005    0.04772885 0.01209693 0.004514763
+# loc_coil_temp 0.052234794 0.047728855    0.05774582 0.01392945 0.010796943
+# loc_hum       0.012189572 0.012096935    0.01392945 0.02535789 0.023836299
+# out_hum       0.008237082 0.004514763    0.01079694 0.02383630 0.031918346
+
+
+# ▶ 다항형 로지스틱 회귀분석 
+# library(nnet)
+# model <- multinom(y ~ ., data=train)
+# y_pred <- predict(model, test)
+# y_true <- test$y
+# tab <- table(y_true, y_pred)
+# acc <- (tab[1,1]+tab[2,2]+tab[3,3])/nrow(test)
+
+table(df_nor$X24hourloc)
+# 0      1 
+# 172282   1383 
+
+prop.table(table(df_nor$X24hourloc))
+# 0           1 
+# 0.992036392 0.007963608 
+
+idx <- sample(1:nrow(df_nor), nrow(df_nor)*0.7)
+train <- df_nor[idx, ]
+test <- df_nor[-idx, ]
+
+df_model <- glm(X24hourloc~. ,data=train, family = 'binomial')
+
+df_model
+# Call:  glm(formula = X24hourloc ~ ., family = "binomial", data = train)
+# 
+# Coefficients:
+#   (Intercept)        loc_tem        out_tem  loc_coil_temp        loc_hum        out_hum  
+# -7.7542         8.6281        19.8530       -28.4270         0.3292         3.2555  
+# 
+# Degrees of Freedom: 121564 Total (i.e. Null);  121559 Residual
+# Null Deviance:	    11260 
+# Residual Deviance: 8766 	AIC: 8778
+
+
+summary(df_model)
+# Call:
+#   glm(formula = X24hourloc ~ ., family = "binomial", data = train)
+# 
+# Deviance Residuals: 
+#   Min       1Q   Median       3Q      Max  
+# -1.5083  -0.1082  -0.0609  -0.0372   3.8727  
+# 
+# Coefficients:
+#   Estimate Std. Error z value Pr(>|z|)    
+# (Intercept)    -7.7542     0.1980 -39.171  < 2e-16 ***
+#   loc_tem         8.6281     1.9062   4.526 6.00e-06 ***
+#   out_tem        19.8530     1.6419  12.092  < 2e-16 ***
+#   loc_coil_temp -28.4270     1.0247 -27.743  < 2e-16 ***
+#   loc_hum         0.3292     0.7665   0.429    0.668    
+# out_hum         3.2555     0.7506   4.337 1.44e-05 ***
+#   ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# (Dispersion parameter for binomial family taken to be 1)
+# 
+# Null deviance: 11255.9  on 121564  degrees of freedom
+# Residual deviance:  8766.3  on 121559  degrees of freedom
+# AIC: 8778.3
+# 
+# Number of Fisher Scoring iterations: 9
+
+
+pred <- predict(df_model, newdata=test, type="response") 
+
+cpred <- ifelse(pred>=0.5, 1, 0)
+table(cpred)
+
+y_true <- test$X24hourloc
+
+tab<-table(y_true, cpred)
+#         cpred
+# y_true     0     1
+#      0 51677     5
+#      1   418     0
+
+acc <- (tab[1,1]+tab[2,2])/sum(tab)
+acc # 0.991881
+
+recall <- tab[2,2]/(tab[2,1]+tab[2,2])
+recall #0
+
+precision <- tab[2,2]/(tab[1,2]+tab[2,2])
+precision #0
+
+F1_score =2*((recall*precision)/(recall+precision))
+F1_score # NaN
+
+
+
+
+

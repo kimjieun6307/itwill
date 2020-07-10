@@ -163,3 +163,146 @@ ar5<- apriori(astran, parameter = list(supp=0.4, conf=0.95)) # 신뢰도 높임
 
 
 
+chiyodad <- subset(ar, lhs %in% '@chiyodad_11')
+chiyodad
+inspect(chiyodad)
+
+
+
+# 결과보기
+inspect(head(ar5)) # 상위 6개 규칙 제공 -> inspect() 적용
+#     lhs                       rhs                                   support confidence     lift count
+# [1] {}                     => {capital-loss=None}                 0.9532779  0.9532779 1.000000 46560
+# [2] {relationship=Husband} => {marital-status=Married-civ-spouse} 0.4034233  0.9993914 2.181164 19704
+# [3] {relationship=Husband} => {sex=Male}                          0.4036485  0.9999493 1.495851 19715
+
+# confidence(신뢰도) 기준 내림차순 정렬 상위 6개 출력
+inspect(head(sort(ar5, decreasing=T, by="confidence")))
+#     lhs                                    rhs                                   support confidence     lift count
+# [1] {relationship=Husband}              => {sex=Male}                          0.4036485  0.9999493 1.495851 19715
+# [2] {marital-status=Married-civ-spouse,                                                                           
+# relationship=Husband}              => {sex=Male}                          0.4034028  0.9999492 1.495851 19703
+# [3] {relationship=Husband}              => {marital-status=Married-civ-spouse} 0.4034233  0.9993914 2.181164 19704
+
+# lift(향상도) 기준 내림차순 정렬 상위 6개 출력
+inspect(head(sort(ar5, by="lift"))) 
+#     lhs                                    rhs                                   support confidence     lift count
+# [1] {marital-status=Married-civ-spouse,                                                                           
+# sex=Male}                          => {relationship=Husband}              0.4034028  0.9901503 2.452877 19703
+# [2] {relationship=Husband}              => {marital-status=Married-civ-spouse} 0.4034233  0.9993914 2.181164 19704
+# [3] {relationship=Husband,                                                                                        
+# sex=Male}                          => {marital-status=Married-civ-spouse} 0.4034028  0.9993913 2.181164 19703
+
+
+## 연관성 규칙에 대한 데이터 시각화를 위한 패키지
+#install.packages("arulesViz") 
+library(arulesViz) # rules값 대상 그래프를 그리는 패키지
+
+plot(ar3) # 지지도(support), 신뢰도(conf) , 향상도(lift)에 대한 산포도
+
+
+plot(ar4, method="graph") #  연관규칙 네트워크 그래프
+# 각 연관규칙 별로 연관성 있는 항목(item) 끼리 묶여서 네트워크 형태로 시각화
+
+
+plot(ar5, method="graph") #36룰
+
+
+# 룰이 너무 많으면 중심어를 기준으로 "subset"만들어서 연관분석가능
+ar5_sub <- subset(ar5, lhs %in% 'workclass=Private') #lhs : 선행사건, rhs: 후행사건
+ar5_sub # set of 9 rules 
+plot(ar5_sub, method="graph")
+
+
+#########################################
+# 4. <<식료품점 파일 예제>> 
+#########################################
+
+library(arules)
+
+# transactions 데이터 가져오기
+data("Groceries")  # 식료품점 데이터 로딩
+str(Groceries) 
+# Formal class 'transactions' [package "arules"] with 3 slots
+#<해석> transactions 객체구조, 3slots(data, itemInfo, itemsetInfo)
+Groceries
+# transactions in sparse format with
+# 9835 transactions (rows) and  ---> 9835명의 거래 정보
+# 169 items (columns) ---> 169 물건
+
+
+
+# [data.frame 형 변환]
+Groceries.df<- as(Groceries, "data.frame")
+head(Groceries.df)
+#                                                                  items
+# 1              {citrus fruit,semi-finished bread,margarine,ready soups}
+# 2                                        {tropical fruit,yogurt,coffee}
+# 3                                                          {whole milk}
+# 4                         {pip fruit,yogurt,cream cheese ,meat spreads}
+# 5 {other vegetables,whole milk,condensed milk,long life bakery product}
+# 6                      {whole milk,butter,yogurt,rice,abrasive cleaner}
+
+summary(Groceries)
+# most frequent items: (출현빈도 가장 높은)
+# whole milk other vegetables       rolls/buns             soda 
+#      2513             1903             1809             1715 
+# yogurt          (Other) 
+# 1372            34055 
+
+#출현 빈도수 시각화 - 상위 20개 토픽
+itemFrequencyPlot(Groceries, topN=20, type="absolute") 
+#@@1
+
+# 지지도 0.001, 신뢰도 0.8
+rules <- apriori(Groceries, parameter=list(supp=0.001, conf=0.8))
+inspect(rules) #410개 룰
+
+# 규칙을 구성하는 왼쪽(LHS) -> 오른쪽(RHS)의 item 빈도수 보기  
+plot(rules, method="grouped")
+#@@2
+
+# 최대 길이 3이내(maxlen=3)로 규칙 생성
+rules <- apriori(Groceries, parameter=list(supp=0.001, conf=0.80, maxlen=3))
+inspect(rules) # 29개 규칙(29 rule)
+
+# 신뢰도(by="confidence") 기준 "내림차순(decreasing=T)"으로 규칙 정렬
+rules <- sort(rules, decreasing=T, by="confidence")
+inspect(rules) 
+
+library(arulesViz) # rules값 대상 그래프를 그리는 패키지
+plot(rules, method="graph", control=list(type="items"))
+#@@3
+
+#######################################
+### 특정 item 서브셋 작성/시각화
+#######################################
+# ★특정 item : subset(rules 객체, rhs (or lhs) %in% '단어') 
+#               subset(rules 객체, rhs (or lhs) %pin% '단어') 
+
+
+
+# 오른쪽 item이 전지분유(whole milk)인 규칙만 서브셋으로 작성
+wmilk <- subset(rules, rhs %in% 'whole milk') # lhs : 왼쪽 item
+wmilk # set of 18 rules 
+inspect(wmilk)
+#@@4
+plot(wmilk, method="graph") #  연관 네트워크 그래프
+
+# 오른쪽 item이 other vegetables인 규칙만 서브셋으로 작성
+oveg <- subset(rules, rhs %in% 'other vegetables') # lhs : 왼쪽 item
+oveg # set of 10 rules 
+inspect(oveg)
+plot(oveg, method="graph") #  연관 네트워크 그래프
+
+# 왼쪽 item이 'butter', 'yogurt' 둘중 하나 포함 => 2개 이상 일때 c() 묶어주면 됨.(or)
+but_yog <- subset(rules, lhs %in% c('butter', 'yogurt'))
+but_yog # set of 4 rules 
+inspect(but_yog)
+#     lhs                 rhs                support     confidence lift     count
+# [1] {butter,jam}     => {whole milk}       0.001016777 0.8333333  3.261374 10   
+# [2] {butter,rice}    => {whole milk}       0.001525165 0.8333333  3.261374 15   
+# [3] {yogurt,rice}    => {other vegetables} 0.001931876 0.8260870  4.269346 19   
+# [4] {yogurt,cereals} => {whole milk}       0.001728521 0.8095238  3.168192 17   
+
+plot(but_yog, method = "graph")

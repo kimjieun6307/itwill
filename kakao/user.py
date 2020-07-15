@@ -17,8 +17,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from pandas.plotting import register_matplotlib_converters
-import seaborn as sns
+# import seaborn as sns
 
+
+# read.csv 파일 읽기
 read= pd.read_csv('C:/ITWILL/project/kakao_data/read.csv')
 read.head()
 
@@ -108,7 +110,7 @@ len(read_raw['user_id'].unique()) # 306050
 
 306050*17452
 
-user_df = read_raw[['user_id', 'writer_id']]
+user_df = read_raw[['user_id', 'writer_id', 'article_id']]
 user_df.head()
 '''
                              user_id         writer_id
@@ -122,64 +124,166 @@ user_df.head()
 # MemoryError: Unable to allocate 359. GiB for an array with shape (22105708, 17452) and data type uint8
 
 user_df.shape # (22105708, 2)
-
-user_df1 = user_df.loc[:100000,]
-user_df1
-
-user_onehot=pd.get_dummies(user_df1, columns=['writer_id'])
-user_onehot
+# user_df.value_counts()
+# np.array(user_df).value_counts()
 '''
-                                  user_id  ...  writer_id_zzzaam_
-0       #3d6d98f06ae6024da6e01af11f19dfcb  ...                  0
-0       #3d6d98f06ae6024da6e01af11f19dfcb  ...                  0
-0       #3d6d98f06ae6024da6e01af11f19dfcb  ...                  0
-0       #3d6d98f06ae6024da6e01af11f19dfcb  ...                  0
-0       #3d6d98f06ae6024da6e01af11f19dfcb  ...                  0
-                                  ...  ...                ...
-100000  #f219a82520e825085417777cf05a1ff7  ...                  0
-100000  #f219a82520e825085417777cf05a1ff7  ...                  0
-100000  #f219a82520e825085417777cf05a1ff7  ...                  0
-100000  #f219a82520e825085417777cf05a1ff7  ...                  0
-100000  #f219a82520e825085417777cf05a1ff7  ...                  0
+user_np = user_df.to_numpy()
+user_np
+user_np.shape
+type(user_np)
+user_np.values_counts()
+'''
+# user_df['writer_id'].apply(pd.value_counts())
+
+user_gr = user_df.groupby(['user_id', 'writer_id'], as_index=False).count()
+type(user_gr)
+user_gr.columns=['user_id', 'writer_id', 'count']
+user_gr.info()
+'''
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 6504359 entries, 0 to 6504358
+Data columns (total 3 columns):
+ #   Column     Dtype 
+---  ------     ----- 
+ 0   user_id    object
+ 1   writer_id  object
+ 2   count      int64 
+'''
+user_gr.head(30)
+'''
+                              user_id         writer_id       count
+0   #00001ba6ca8d87d2fc34d626ba9cfe6f           brunch_           1
+1   #00001ba6ca8d87d2fc34d626ba9cfe6f       kecologist_           1
+2   #00001ba6ca8d87d2fc34d626ba9cfe6f     swimmingstar_           1
+3   #0000d1188f75d0b0ea7a8e23a2b760e5       hyunilikes_           1
+4   #0000e87158c1426d6ffb72cebac6cb64        boosw1999_           1
+5   #0000e87158c1426d6ffb72cebac6cb64           brunch_           1
+6   #0000eea6d339abfd02ed590bc451fc63           sucopy_           1
+7   #0000fdba8f35c76eacab74c5c6bc7f1a       4noramyeon_           1
+8   #0000fdba8f35c76eacab74c5c6bc7f1a         hyunikun_           2
+9   #0000fdba8f35c76eacab74c5c6bc7f1a          lazypic_           2
+10  #0000fdba8f35c76eacab74c5c6bc7f1a      myolivenote_           1
+11  #0000fdba8f35c76eacab74c5c6bc7f1a          ohj2660_           1
+12  #0000fdba8f35c76eacab74c5c6bc7f1a          roysday_           1
+13  #0000fdba8f35c76eacab74c5c6bc7f1a  studiocroissant_           1
+14  #0000fdba8f35c76eacab74c5c6bc7f1a          tenbody_           2
+15  #0000fdba8f35c76eacab74c5c6bc7f1a        yeonjikim_           2
+16  #000127ad0f1981cae1292efdb228f0e9        dailylife_           1
+17  #000127ad0f1981cae1292efdb228f0e9       seochogirl_          34
+18  #000127ad0f1981cae1292efdb228f0e9   shanghaiesther_           1
+19  #000127ad0f1981cae1292efdb228f0e9         syshine7_           1
+'''
+user_gr.shape # (6504359, 3)
+user_gr.groupby(['count'])[['user_id']].count()
+'''
+       user_id
+count         
+1      3355577
+2      1600989
+3       428957
+4       347220
+5       134664
+       ...
+4212         1
+4278         1
+5158         1
+5190         1
+6922         1
+'''
+user_gr.groupby(['writer_id'])[['user_id']].count()
+'''
+                                   user_id
+writer_id                                 
+002_                                     6
+002jesus_                                6
+002paper_                                8
+00700c454af49d5c9a36a13fcba01d0a_      614
+008hood_                                14
+                                   ...
+zzumit_                                 15
+zzyoun_                                152
+zzz1004jang_                             1
+zzzaam_                                244
+zzzwhite_                                1
 '''
 
-user_df1['cnt']=1
+n_users = user_gr.user_id.unique().shape[0]
+n_users # 306050
+
+n_writers = user_gr.writer_id.unique().shape[0]
+n_writers # 17452
+
+ratings = np.zeros((n_users, n_writers))
+ratings.shape #  (306050, 17452)
+
+for row in user_gr.itertuples() :
+    ratings[row[1]-1, row[2]-1] =row[3]
+
+ratings
+#TypeError: unsupported operand type(s) for -: 'str' and 'int'
+
+# user_id 숫자로 encoding
+user_unique = user_gr.user_id.unique()
+dict = {x : index +1 for index, x in enumerate(user_unique)}
+user_gr['user_num'] = user_gr['user_id'].map(dict)
+user_gr.head()
+
+# writer_id 숫자로 encoding
+writer_unique = user_gr.writer_id.unique()
+dict2 = {x : index +1 for index, x in enumerate(writer_unique)}
+user_gr['writer_num'] = user_gr['writer_id'].map(dict2)
+user_gr.head()
+
+user_gr.to_csv("C:/ITWILL/project/kakao_data/read_group.csv", index=None)
+
+user_gr.user_num.unique().shape[0] # 306050
+user_gr.writer_num.unique().shape[0] # 17452
+
+df = user_gr[['user_num', 'writer_num', 'count']]
+df.head(30)
 '''
-                                  user_id         writer_id  cnt
-0       #3d6d98f06ae6024da6e01af11f19dfcb  seongheeleelrwn_    1
-0       #3d6d98f06ae6024da6e01af11f19dfcb    thewatermelon_    1
-0       #3d6d98f06ae6024da6e01af11f19dfcb    thewatermelon_    1
-0       #3d6d98f06ae6024da6e01af11f19dfcb   thinkaboutlove_    1
-0       #3d6d98f06ae6024da6e01af11f19dfcb        sabumbyun_    1
-                                  ...               ...  ...
-100000  #f219a82520e825085417777cf05a1ff7   raonjenatravel_    1
-100000  #f219a82520e825085417777cf05a1ff7          hakgome_    1
-100000  #f219a82520e825085417777cf05a1ff7          antyoon_    1
-100000  #f219a82520e825085417777cf05a1ff7        bookdream_    1
-100000  #f219a82520e825085417777cf05a1ff7        cswoo0625_    1
+    user_num  writer_num  count
+0          1           1      1
+1          1           2      1
+2          1           3      1
+3          2           4      1
+4          3           5      1
+5          3           1      1
+6          4           6      1
+7          5           7      1
+8          5           8      2
+9          5           9      2
+10         5          10      1
+11         5          11      1
+12         5          12      1
+13         5          13      1
+14         5          14      2
+15         5          15      2
+16         6          16      1
+17         6          17     34
 '''
 
-matrix = user_df1.pivot_table(index='user_id', columns='writer_id', aggfunc='count')
-matrix
-'''
-                                                                cnt  ...        
-writer_id                         00700c454af49d5c9a36a13fcba01d0a_  ... zzzaam_
-user_id                                                              ...        
-#0001485b31e8f02c1ce117ceb4f41560                               NaN  ...     NaN
-#0002531e4382c7f425e586552258ac64                               NaN  ...     NaN
-#00040655eb357639383676e6342cc56e                               NaN  ...     NaN
-#000474bba0c00c70e12ac7cfc3d04553                               NaN  ...     NaN
-#000549d84169355d490b029755f99381                               NaN  ...     NaN
-                                                            ...  ...     ...
-#fffb7c053ee42209d7a9a38ec1cdbc6d                               NaN  ...     NaN
-#fffcc9c67c1dfb2543eccdde30c19d6f                               NaN  ...     NaN
-#fffd9342da9adb890ce65b994cd10e44                               NaN  ...     NaN
-#fffe67ecc0056dd26ae00511957c5a2b                               NaN  ...     NaN
-#ffff69451ff594425637015500410a13                               NaN  ...     NaN
+for row in df.itertuples() :
+    ratings[row[1]-1, row[2]-1] =row[3]
 
-[47023 rows x 10047 columns]
+ratings
+'''
+array([[1., 1., 1., ..., 0., 0., 0.],
+       [0., 0., 0., ..., 0., 0., 0.],
+       [1., 0., 0., ..., 0., 0., 0.],
+       ...,
+       [0., 0., 0., ..., 0., 0., 0.],
+       [0., 0., 0., ..., 0., 0., 0.],
+       [0., 0., 0., ..., 0., 0., 0.]])
 '''
 
-type(matrix) #  pandas.core.frame.DataFrame
+from sklearn.metrics.pairwise import cosine_distances
 
+distance = 1-cosine_distances(ratings)
+distance
+# MemoryError: Unable to allocate 39.8 GiB for an array with shape (306050, 17452) and data type float64
 
+from sklearn.model_selection import train_test_split
+
+ratings_train, ratings_test = train_test_split(ratings, test_size = 0.5, random_state=45)
+                                 
